@@ -1,0 +1,20 @@
+{
+    "name": "runc",
+    "self": "/proc/self/exe",
+    "storage": {
+        "path": "/var/lib/runc",
+        "status": "status",
+        "images": "images",
+        "containers": "containers",
+        "logs": "logs"
+    },
+    "runchecker": {
+        "name": "runchecker",
+        "log_name": "runchecker.log"
+    },
+    "cgroup": {
+        "path": "/sys/fs/cgroup",
+        "memory": "memory",
+        "cpu": "cpu"
+    }
+}
