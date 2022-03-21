@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"gitee.com/shangc1016/run-c/cmd"
-	"gitee.com/shangc1016/run-c/utils"
+	"gitee.com/shangc1016/runc/cmd"
+	"gitee.com/shangc1016/runc/utils"
 	"github.com/sirupsen/logrus"
 )
 
