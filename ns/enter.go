@@ -9,10 +9,10 @@ import (
 	"syscall"
 	"time"
 
-	"gitee.com/shangc1016/run-c/cgroup"
-	"gitee.com/shangc1016/run-c/mount"
-	"gitee.com/shangc1016/run-c/status"
-	"gitee.com/shangc1016/run-c/utils"
+	"gitee.com/shangc1016/runc/cgroup"
+	"gitee.com/shangc1016/runc/mount"
+	"gitee.com/shangc1016/runc/status"
+	"gitee.com/shangc1016/runc/utils"
 	"github.com/sirupsen/logrus"
 )
 

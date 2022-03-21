@@ -7,7 +7,7 @@ import (
 	"path"
 	"strings"
 
-	"gitee.com/shangc1016/run-c/utils"
+	"gitee.com/shangc1016/runc/utils"
 )
 
 type VolumeInfo struct {

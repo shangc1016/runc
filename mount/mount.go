@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"path"
 
-	"gitee.com/shangc1016/run-c/utils"
+	"gitee.com/shangc1016/runc/utils"
 	"github.com/sirupsen/logrus"
 )
 

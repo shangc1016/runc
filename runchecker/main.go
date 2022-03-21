@@ -8,9 +8,9 @@ import (
 	"path"
 	"time"
 
-	"gitee.com/shangc1016/run-c/mount"
-	"gitee.com/shangc1016/run-c/status"
-	"gitee.com/shangc1016/run-c/utils"
+	"gitee.com/shangc1016/runc/mount"
+	"gitee.com/shangc1016/runc/status"
+	"gitee.com/shangc1016/runc/utils"
 )
 
 // runchecker 是一个后台进程，不断检索容器目录/var/lib/runc/container,并且更新他们的状态

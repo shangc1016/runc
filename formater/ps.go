@@ -3,7 +3,7 @@ package formater
 import (
 	"os"
 
-	"gitee.com/shangc1016/run-c/status"
+	"gitee.com/shangc1016/runc/status"
 	"github.com/jedib0t/go-pretty/v6/table"
 )
 

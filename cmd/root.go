@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"gitee.com/shangc1016/run-c/formater"
-	"gitee.com/shangc1016/run-c/mount"
-	"gitee.com/shangc1016/run-c/ns"
-	"gitee.com/shangc1016/run-c/status"
+	"gitee.com/shangc1016/runc/formater"
+	"gitee.com/shangc1016/runc/mount"
+	"gitee.com/shangc1016/runc/ns"
+	"gitee.com/shangc1016/runc/status"
 	"github.com/spf13/cobra"
 )
 

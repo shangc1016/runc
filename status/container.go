@@ -7,8 +7,8 @@ import (
 	"os"
 	"path"
 
-	"gitee.com/shangc1016/run-c/mount"
-	"gitee.com/shangc1016/run-c/utils"
+	"gitee.com/shangc1016/runc/mount"
+	"gitee.com/shangc1016/runc/utils"
 )
 
 type ContainerInfo struct {
