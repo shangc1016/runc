@@ -25,23 +25,23 @@ type CgroupResource struct {
 
 func NewMemoryResource(quota string) *ResourceItem {
 	return &ResourceItem{
-		Type:  "memory",
-		File:  MemoryQuotaFile,
+		Type:  utils.Mem,
+		File:  utils.MemQuota,
 		Quota: quota,
 	}
 }
 
 func NewCpuResource(quota string) *ResourceItem {
 	return &ResourceItem{
-		Type:  "cpu",
-		File:  CpuQuotaFile,
+		Type:  utils.Cpu,
+		File:  utils.CpuQuota,
 		Quota: quota,
 	}
 }
 
 func NewCgroupResource() *CgroupResource {
 	return &CgroupResource{
-		CgroupName: CgroupName,
+		CgroupName: utils.Name,
 	}
 }
 
@@ -56,7 +56,6 @@ func (c *CgroupResource) AddCgroupResource(resource ResourceItem) {
 func (c *CgroupResource) InitNode() error {
 	for _, resource := range c.Resource {
 		path := path.Join(c.CgroupPath, resource.Type, c.CgroupName)
-		// fmt.Println(1, path)
 		exist, err := utils.PathExists(path)
 		if err != nil {
 			logrus.Fatal(err)
@@ -72,7 +71,6 @@ func (c *CgroupResource) InitNode() error {
 func (c *CgroupResource) RemoveNode() error {
 	for _, resource := range c.Resource {
 		path := path.Join(c.CgroupPath, resource.Type, c.CgroupName)
-		// fmt.Println(2, path)
 		exist, _ := utils.PathExists(path)
 		if exist {
 			os.Remove(path)
@@ -84,7 +82,6 @@ func (c *CgroupResource) RemoveNode() error {
 func (c *CgroupResource) SetQuota() error {
 	for _, resource := range c.Resource {
 		path := path.Join(c.CgroupPath, resource.Type, c.CgroupName, resource.File)
-		fmt.Println(3, path, resource.Quota)
 		if err := ioutil.WriteFile(path, []byte(resource.Quota), 0644); err != nil {
 			fmt.Println(resource.Type, path, resource.Quota)
 			logrus.Fatal(err)
@@ -97,7 +94,6 @@ func (c *CgroupResource) SetQuota() error {
 func (c *CgroupResource) SetPid(pid int) error {
 	for _, resource := range c.Resource {
 		path := path.Join(c.CgroupPath, resource.Type, c.CgroupName, "tasks")
-		// fmt.Println(4, path)
 		if err := ioutil.WriteFile(path, []byte(strconv.Itoa(pid)), 0644); err != nil {
 			logrus.Fatal(err)
 			return err

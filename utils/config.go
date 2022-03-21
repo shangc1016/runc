@@ -16,9 +16,11 @@ type Storage struct {
 }
 
 type Cgroup struct {
-	Path   string `json:"path"`
-	Memory string `json:"memory"`
-	Cpu    string `json:"cpu"`
+	Path        string `json:"path"`
+	MemoryQuota string `json:"memory_quota"`
+	CpuQuota    string `json:"cpu_quota"`
+	Memory      string `json:"memory"`
+	Cpu         string `json:"cpu"`
 }
 
 type RunChecker struct {
@@ -47,6 +49,8 @@ var (
 	Logs        string
 	LOGS_PATH   string
 	CgroupPath  string
+	MemQuota    string
+	CpuQuota    string
 	Mem         string
 	Cpu         string
 	RCName      string
@@ -54,10 +58,10 @@ var (
 )
 
 // 初始化全局参数，从config.json中读入参数
-func Init(jsonConfig string) {
-	config, err := ParseJsonConfig(jsonConfig)
+func InitConfig(configPath string) {
+	config, err := ParseJsonConfig(configPath)
 	if err != nil {
-		fmt.Println("loading configuration error")
+		fmt.Println("loading configuration error:", err)
 		os.Exit(-1)
 	}
 	Name = config.Name
@@ -68,6 +72,8 @@ func Init(jsonConfig string) {
 	Images = config.Storage.Images
 	Logs = config.Storage.Logs
 	CgroupPath = config.Cgroup.Path
+	MemQuota = config.Cgroup.MemoryQuota
+	CpuQuota = config.Cgroup.CpuQuota
 	Mem = config.Cgroup.Memory
 	Cpu = config.Cgroup.Cpu
 	RCName = config.RunChecker.Name
@@ -89,6 +95,8 @@ func Init(jsonConfig string) {
 	// fmt.Println("RCName:", RCName)
 	// fmt.Println("RCLogName:", RCLogName)
 	// fmt.Println("CgroupPath:", CgroupPath)
+	// fmt.Println("MemQuota:", MemQuota)
+	// fmt.Println("CpuQuota:", CpuQuota)
 	// fmt.Println("Mem:", Mem)
 	// fmt.Println("Cpu:", Cpu)
 }

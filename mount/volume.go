@@ -34,7 +34,6 @@ func ParseVolume(args []string) ([]VolumeInfo, bool) {
 }
 
 func SetVolumeMountPoint(mntPath string, volumes []VolumeInfo) (bool, error) {
-	fmt.Println("set mount point")
 	exist, err := utils.PathExists(mntPath)
 	if err != nil {
 		fmt.Println("err", err)

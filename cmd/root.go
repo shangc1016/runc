@@ -8,6 +8,8 @@ import (
 	"gitee.com/shangc1016/runc/mount"
 	"gitee.com/shangc1016/runc/ns"
 	"gitee.com/shangc1016/runc/status"
+	"gitee.com/shangc1016/runc/utils"
+
 	"github.com/spf13/cobra"
 )
 
@@ -40,27 +42,24 @@ var runFlags RunFlags
 var psFlags PsFlags
 
 var rootCmd *cobra.Command = &cobra.Command{
-	Use: "run-c",
+	Use: utils.Name,
 }
 
 var runCmd *cobra.Command = &cobra.Command{
 	Use:   "run",
-	Short: "execute run-c process",
+	Short: "execute process",
 	Run: func(cmd *cobra.Command, args []string) {
-		volume, status := mount.ParseVolume(volume)
+		volumes, status := mount.ParseVolume(volume)
 		if !status {
 			fmt.Println("volume format error(exit)")
-			os.Exit(0)
-		}
-		if it && detach {
-			// 要么是后台运行，要么是it模拟终端运行，不能都是
-			fmt.Println("can not appear together")
 			os.Exit(-1)
 		}
-		if detach {
-			it = false
+		if it && detach || !it && !detach {
+			// 要么是后台运行，要么是it模拟终端运行，不能都是
+			fmt.Println("must run in it or detach mode")
+			os.Exit(-1)
 		}
-		ns.ReenterConfig(it, memQuota, cpuQuota, args, volume, name)
+		ns.ReenterConfig(it, memQuota, cpuQuota, args, volumes, name)
 	},
 }
 
@@ -68,6 +67,7 @@ var commitCmd *cobra.Command = &cobra.Command{
 	Use:   "commit",
 	Short: "commit container filesystem to achieved",
 	Run: func(cmd *cobra.Command, args []string) {
+		// TODO
 		fmt.Println("args:", args)
 		if len(args) == 0 {
 			fmt.Println("error")
@@ -110,6 +110,10 @@ var initCmd *cobra.Command = &cobra.Command{
 func init() {
 
 	rootCmd.AddCommand(runCmd)
+	rootCmd.AddCommand(psCmd)
+	rootCmd.AddCommand(initCmd)
+	rootCmd.AddCommand(commitCmd)
+
 	runCmd.Flags().StringVarP(&memQuota, "mem", "m", "100m", "mem quota, range [...]")
 	runCmd.Flags().StringVarP(&cpuQuota, "cpu", "c", "-1", "cpu quota, range [-1, 100000]")
 
@@ -119,18 +123,12 @@ func init() {
 	runCmd.Flags().StringSliceVarP(&volume, "volume", "v", []string{}, "mount volume")
 
 	runCmd.Flags().BoolVar(&it, "it", false, "with interactive termainl")
-
-	// 后台运行
 	runCmd.Flags().BoolVarP(&detach, "detach", "d", false, "run background")
 
-	rootCmd.AddCommand(initCmd)
-	initCmd.Hidden = true // only invoke internal.
-
-	rootCmd.AddCommand(commitCmd)
-
-	rootCmd.AddCommand(psCmd)
 	psCmd.Flags().BoolVarP(&all, "all", "a", false, "print all container, no matter running or terminated.")
 	psCmd.Flags().BoolVarP(&quiet, "quiet", "q", false, "only print container's id.")
+
+	initCmd.Hidden = true // only invoke internal.
 
 }
 

@@ -1,4 +1,4 @@
-# run-c
+# runc
 
 > 这是根据[自己动手写Docker](https://book.douban.com/subject/27082348/)这本书的一个toy.
 

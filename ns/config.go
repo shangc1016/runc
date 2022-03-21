@@ -11,8 +11,6 @@ import (
 )
 
 func Config(command []string) {
-	logrus.Info("re-entered, with params:", command)
-
 	// 首先chroot到/var/lib/runc/mnt这个overlay的文件系统中
 	if err := syscall.Chroot("/var/lib/runc/mnt"); err != nil {
 		fmt.Println("<chroot error>.", err.Error())

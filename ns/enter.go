@@ -13,7 +13,6 @@ import (
 	"gitee.com/shangc1016/runc/mount"
 	"gitee.com/shangc1016/runc/status"
 	"gitee.com/shangc1016/runc/utils"
-	"github.com/sirupsen/logrus"
 )
 
 func ReenterConfig(it bool, mem, cpu string, command []string, volume []mount.VolumeInfo, name string) {
@@ -80,7 +79,6 @@ func ReenterConfig(it bool, mem, cpu string, command []string, volume []mount.Vo
 }
 
 func EnterNs(args []string, it bool, volume []mount.VolumeInfo) *exec.Cmd {
-	logrus.Info("config re-enter params")
 	var argsInit []string = make([]string, len(args)+1)
 	argsInit[0] = "init"
 	for k, v := range args {

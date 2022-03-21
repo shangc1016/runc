@@ -14,6 +14,8 @@
     },
     "cgroup": {
         "path": "/sys/fs/cgroup",
+        "memory_quota": "memory.limit_in_bytes",
+        "cpu_quota": "cpu.cfs_quota_us",
         "memory": "memory",
         "cpu": "cpu"
     }
