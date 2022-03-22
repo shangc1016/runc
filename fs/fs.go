@@ -4,22 +4,40 @@ import (
 	"fmt"
 	"os"
 	"path"
+
+	"gitee.com/shangc1016/runc/utils"
 )
 
-func MkFs(fsPath string) error {
-	return nil
+func InitFs() {
+	fmt.Println("init fs(storage, cgroup)...")
+
+	status := InitializeStorageDir(utils.Storage.Path,
+		[]string{utils.Storage.Containers,
+			utils.Storage.Images, utils.Storage.Logs, utils.Storage.Status})
+	if !status {
+		fmt.Println("initialize storage error")
+		os.Exit(-1)
+	}
+
+	status = InitializeCgroup(utils.Cgroup.Path, utils.Project.Name,
+		[]string{utils.Cgroup.Memory, utils.Cgroup.Cpu})
+	if !status {
+		fmt.Println("initialize cgroup error")
+		os.Exit(-1)
+	}
 }
 
-func InitializeStorageDir(cp, ip, sp, lp string) bool {
-	// 创建存储相关目录
-	s1, s2, s3, s4 := MkDirIfNotExist(cp), MkDirIfNotExist(ip), MkDirIfNotExist(sp), MkDirIfNotExist(lp)
-	if s1 || s2 || s3 || s4 {
-		return false
+func InitializeStorageDir(storagePath string, dirs []string) bool {
+	for _, dir := range dirs {
+		status := MkDirIfNotExist(path.Join(storagePath, dir))
+		if !status {
+			return false
+		}
 	}
 	return true
 }
 
-func InitializeCgroupDir(name, cgroupPath string, resources []string) bool {
+func InitializeCgroup(cgroupPath, name string, resources []string) bool {
 	for _, resource := range resources {
 		status := MkDirIfNotExist(path.Join(cgroupPath, resource, name))
 		if !status {
@@ -29,15 +47,18 @@ func InitializeCgroupDir(name, cgroupPath string, resources []string) bool {
 	return true
 }
 
-// 创建运行容器的目录
-func MkContainerDir(containerPath, name, log string, dirs []string) bool {
+// 创建运行容器的目录,name 必须互不相同
+func MkContainerDir(containerPath, name string, dirs []string) bool {
 	container := path.Join(containerPath, name)
+	exist, _ := PathExists(container)
+	if exist {
+		fmt.Printf("container name: `%v` already exist\n", name)
+		return false
+	}
 	status := MkDirIfNotExist(container)
 	if !status {
 		return false
 	}
-	f, _ := os.Create(path.Join(container, log))
-	f.Close()
 	for _, dir := range dirs {
 		status := MkDirIfNotExist(path.Join(container, dir))
 		if !status {

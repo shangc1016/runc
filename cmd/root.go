@@ -5,10 +5,10 @@ import (
 	"os"
 
 	"gitee.com/shangc1016/runc/formater"
+	"gitee.com/shangc1016/runc/fs"
 	"gitee.com/shangc1016/runc/mount"
 	"gitee.com/shangc1016/runc/ns"
 	"gitee.com/shangc1016/runc/status"
-	"gitee.com/shangc1016/runc/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -42,14 +42,14 @@ var runFlags RunFlags
 var psFlags PsFlags
 
 var rootCmd *cobra.Command = &cobra.Command{
-	Use: utils.Name,
+	Use: "runc",
 }
 
 var runCmd *cobra.Command = &cobra.Command{
-	Use:   utils.Name,
+	Use:   "run",
 	Short: "execute process",
 	Run: func(cmd *cobra.Command, args []string) {
-		volumes, status := mount.ParseVolume(volume)
+		volumes, status := fs.ParseVolume(volume)
 		if !status {
 			fmt.Println("volume format error(exit)")
 			os.Exit(-1)
@@ -103,12 +103,13 @@ var initCmd *cobra.Command = &cobra.Command{
 	Short: "re-enter program and do some setting work.",
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO:参数有效性验证
-		ns.Config(args)
+		fmt.Println("enter##############")
+		ns.Config(args[0], args[1:])
 	},
 }
 
-func init() {
-	fmt.Println("cmd init")
+func InitCmd() {
+	fmt.Println("init cmd...")
 	rootCmd.AddCommand(runCmd)
 	rootCmd.AddCommand(psCmd)
 	rootCmd.AddCommand(initCmd)
@@ -128,7 +129,7 @@ func init() {
 	psCmd.Flags().BoolVarP(&all, "all", "a", false, "print all container, no matter running or terminated.")
 	psCmd.Flags().BoolVarP(&quiet, "quiet", "q", false, "only print container's id.")
 
-	initCmd.Hidden = true // only invoke internal.
+	// initCmd.Hidden = true // only invoke internal.
 
 }
 

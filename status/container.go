@@ -7,18 +7,18 @@ import (
 	"os"
 	"path"
 
-	"gitee.com/shangc1016/runc/mount"
+	"gitee.com/shangc1016/runc/fs"
 	"gitee.com/shangc1016/runc/utils"
 )
 
 type ContainerInfo struct {
-	Name       string             `json:"name"`
-	Id         string             `json:"id"`
-	Pid        string             `json:"pid"`
-	Status     string             `json:"status"`
-	Command    string             `json:"command"`
-	CreateTime string             `json:"create_time"`
-	Volumes    []mount.VolumeInfo `json:"volumes"`
+	Name       string          `json:"name"`
+	Id         string          `json:"id"`
+	Pid        string          `json:"pid"`
+	Status     string          `json:"status"`
+	Command    string          `json:"command"`
+	CreateTime string          `json:"create_time"`
+	Volumes    []fs.VolumeInfo `json:"volumes"`
 }
 
 var (

@@ -1,16 +1,19 @@
 {
-    "name": "runc",
-    "self": "/proc/self/exe",
+
+    "project": {
+        "name": "runc",
+        "self": "/proc/self/exe"
+    },
     "storage": {
         "path": "/var/lib/runc",
         "status": "status",
         "images": "images",
         "containers": "containers",
-        "logs": "logs"
-    },
-    "runchecker": {
-        "name": "runchecker",
-        "log_name": "runchecker.log"
+        "logs": "logs",
+        "mnt": "mnt",
+        "upperdir": "upperdir",
+        "workdir": "workdir",
+        "output": "output"
     },
     "cgroup": {
         "path": "/sys/fs/cgroup",
@@ -18,5 +21,9 @@
         "cpu_quota": "cpu.cfs_quota_us",
         "memory": "memory",
         "cpu": "cpu"
+    },
+    "runchecker": {
+        "name": "runchecker",
+        "log_name": "runchecker.log"
     }
 }

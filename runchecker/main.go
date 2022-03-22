@@ -41,8 +41,8 @@ func main() {
 			if !exist {
 				// TODO
 				// 移除挂载的文件系统，
-				state, err := mount.RemoveVolmeMountPoint("/var/lib/runc", info.Volumes)
-				fmt.Println(state, err)
+				// state, err := mount.RemoveVolmeMountPoint("/var/lib/runc", info.Volumes)
+				// fmt.Println(state, err)
 				// 移除overlay分层文件系统
 				mount.DeleteWorkSpace("/var/lib/runc")
 

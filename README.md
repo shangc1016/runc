@@ -136,7 +136,7 @@
 							|     |     | -- mnt             // 容器挂载的目录，即overaly文件系统中的merged
 							|     |     | -- upperdir        // overlay文件系统的upperdir 
 							|     |     | -- workdir         // overlay文件系统的workdir
-							|     |     | -- run.log         // 把容器日志挂载到此处
+							|     |     | -- output          // 把容器输出挂载到此处
 							|     |   .. 
 							|
 							|
@@ -144,7 +144,7 @@
 							|     | -- busybox               // busybox基础镜像
 							|     |   ..
 							|
-							| -- states                      // 容器状态
+							| -- status                      // 容器状态
 							|     | -- xxxx                  // 以容器ID命名，保存容器状态
 							|     |   ..
 							|
