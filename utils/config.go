@@ -58,8 +58,9 @@ var (
 )
 
 // 初始化全局参数，从config.json中读入参数
-func InitConfig(configPath string) {
-	config, err := ParseJsonConfig(configPath)
+func init() {
+	wd, _ := os.Getwd()
+	config, err := ParseJsonConfig(path.Join(wd, "config.json"))
 	if err != nil {
 		fmt.Println("loading configuration error:", err)
 		os.Exit(-1)

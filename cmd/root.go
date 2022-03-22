@@ -46,7 +46,7 @@ var rootCmd *cobra.Command = &cobra.Command{
 }
 
 var runCmd *cobra.Command = &cobra.Command{
-	Use:   "run",
+	Use:   utils.Name,
 	Short: "execute process",
 	Run: func(cmd *cobra.Command, args []string) {
 		volumes, status := mount.ParseVolume(volume)
@@ -108,7 +108,7 @@ var initCmd *cobra.Command = &cobra.Command{
 }
 
 func init() {
-
+	fmt.Println("cmd init")
 	rootCmd.AddCommand(runCmd)
 	rootCmd.AddCommand(psCmd)
 	rootCmd.AddCommand(initCmd)

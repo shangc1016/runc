@@ -3,6 +3,7 @@ package fs
 import (
 	"fmt"
 	"os"
+	"path"
 )
 
 func MkFs(fsPath string) error {
@@ -18,8 +19,32 @@ func InitializeStorageDir(cp, ip, sp, lp string) bool {
 	return true
 }
 
-func InitializeCgroupDir(name string, resourcesPath []string) bool {
-	return false
+func InitializeCgroupDir(name, cgroupPath string, resources []string) bool {
+	for _, resource := range resources {
+		status := MkDirIfNotExist(path.Join(cgroupPath, resource, name))
+		if !status {
+			return false
+		}
+	}
+	return true
+}
+
+// 创建运行容器的目录
+func MkContainerDir(containerPath, name, log string, dirs []string) bool {
+	container := path.Join(containerPath, name)
+	status := MkDirIfNotExist(container)
+	if !status {
+		return false
+	}
+	f, _ := os.Create(path.Join(container, log))
+	f.Close()
+	for _, dir := range dirs {
+		status := MkDirIfNotExist(path.Join(container, dir))
+		if !status {
+			return false
+		}
+	}
+	return true
 }
 
 func MkDirIfNotExist(dir string) bool {

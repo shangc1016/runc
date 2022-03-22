@@ -138,6 +138,8 @@
 							|     |     | -- workdir         // overlay文件系统的workdir
 							|     |     | -- run.log         // 把容器日志挂载到此处
 							|     |   .. 
+							|
+							|
 							| -- images                      // 基础镜像，即overlay文件系统中的lowerdir
 							|     | -- busybox               // busybox基础镜像
 							|     |   ..
