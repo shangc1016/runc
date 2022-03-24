@@ -11,31 +11,37 @@ import (
 	"time"
 
 	"gitee.com/shangc1016/runc/cgroup"
-	"gitee.com/shangc1016/runc/fs"
+	"gitee.com/shangc1016/runc/fsys"
 	"gitee.com/shangc1016/runc/status"
 	"gitee.com/shangc1016/runc/utils"
 )
 
-func ReenterConfig(it bool, mem, cpu string, command []string, volumes []fs.VolumeInfo, name string) {
-	// 因为在main函数中init初始化的话，在第二进入会重复初始化，产生其他问题。因此直接放在run函数中
-	utils.InitConfig()
-	fs.InitFs()
+func ReenterConfig(it bool, mem, cpu string, command []string, volumes []fsys.VolumeInfo, name string) {
 
 	id := utils.GenRandString(10)
 	self := EnterNs(command, it, path.Join(utils.Storage.Path, utils.Storage.Containers, id, "mnt"))
 
 	// 新建文件系统
-	fsys := fs.NewContainerFS(id)
+	fsys := fsys.NewContainerFS(id)
 	// 创建相应的目录结构
 	fsys.Init()
 	// 挂载基础镜像，设置overlay文件系统
 	fsys.MkMountFs(path.Join(utils.Storage.Path, utils.Storage.Images, "busybox"))
 	// 挂载数据卷
-	fmt.Println("volumes:", volumes)
 	fsys.MkVolumeFs(volumes)
+
+	if !it {
+		// 如果容器以后台进程的方式运行，需要把容器进程的标准输出重定向到/var/lib/runc/containers/`name`/output/output.log 文件中
+		f, err := os.OpenFile(path.Join(fsys.Path, fsys.Name, fsys.Output, "output.log"), os.O_WRONLY|os.O_CREATE|os.O_APPEND, os.ModeAppend|os.ModePerm)
+		if err != nil {
+			fmt.Println("<output redirect error>", err)
+		}
+		defer f.Close()
+		self.Stdout = f
+		self.Stderr = f
+	}
 	// 设置子进程的进入目录为/var/lib/runc/containers/`name`/mnt
 	enterPoint := path.Join(utils.Storage.Path, utils.Storage.Containers, id, utils.Storage.Mnt)
-	fmt.Println("enterpoint:", enterPoint)
 	self.Dir = enterPoint
 	// 运行self.
 	if err := self.Start(); err != nil {
@@ -43,9 +49,7 @@ func ReenterConfig(it bool, mem, cpu string, command []string, volumes []fs.Volu
 		os.Exit(-1)
 	}
 
-	fmt.Println("pid:", self.Process.Pid)
-	fmt.Println("id:", id)
-
+	fmt.Printf("pid:%v, id:%v\n", self.Process.Pid, id)
 	// 设置cgroup
 	cgroupLimit := cgroup.NewCgroupResource(id, strconv.Itoa(self.Process.Pid))
 	cgroupLimit.AddCgroupResource(cgroup.ResourceItem{
@@ -65,7 +69,7 @@ func ReenterConfig(it bool, mem, cpu string, command []string, volumes []fs.Volu
 		fsys.CleanUp()
 
 	} else {
-		// 后台运行，此时需要把子进程相关信息写入文件
+		// 后台运行，此时需要把子进程相关信息写入文件 /var/lib/runc/status/`id`
 		var childInfo status.ContainerInfo = status.ContainerInfo{
 			Name:       name,
 			Pid:        strconv.Itoa(self.Process.Pid),
@@ -105,10 +109,5 @@ func EnterNs(args []string, it bool, rootPath string) *exec.Cmd {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 	}
-	// // 在子进程启动之前就已经准备好了
-	// cmd.Dir = "/var/lib/runc/mnt"
-	// // 在进程运行之前准备好用到的分层的文件系统
-	// mount.NewWorkSpace("/var/lib/runc")
-	// mount.SetVolumeMountPoint("/var/lib/runc/mnt", volume)
 	return cmd
 }

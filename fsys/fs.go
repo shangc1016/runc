@@ -1,4 +1,4 @@
-package fs
+package fsys
 
 import (
 	"fmt"
@@ -9,7 +9,6 @@ import (
 )
 
 func InitFs() {
-	fmt.Println("init fs(storage, cgroup)...")
 
 	// 首先，创建目录/var/lib/runc
 	status := MkDirIfNotExist(utils.Storage.Path)

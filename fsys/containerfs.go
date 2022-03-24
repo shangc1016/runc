@@ -1,4 +1,4 @@
-package fs
+package fsys
 
 import (
 	"fmt"
@@ -72,10 +72,7 @@ func (c *Containerfs) MkMountFs(imagePath string) {
 func (c *Containerfs) MkVolumeFs(volumes []VolumeInfo) {
 	c.Volumes = volumes
 	for _, volume := range volumes {
-		fmt.Println("inner:", volume.InnerPath)
-		fmt.Println("outer:", volume.OuterPath)
 		inner := path.Join(c.Path, c.Name, c.Mnt, volume.InnerPath)
-		fmt.Println("inner:", inner)
 		exist, _ := PathExists(inner)
 		if !exist {
 			os.MkdirAll(inner, 0644)
@@ -100,7 +97,7 @@ func (c *Containerfs) CleanUp() {
 	if err != nil {
 		fmt.Println("<remove container dir err>", err)
 	}
-	fmt.Println("cleanup fsys")
+	fmt.Println("fsys cleaned")
 }
 
 func (c *Containerfs) cleanUpVolume() bool {

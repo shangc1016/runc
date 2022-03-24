@@ -6,7 +6,7 @@ import (
 	"os"
 	"path"
 
-	"gitee.com/shangc1016/runc/fs"
+	"gitee.com/shangc1016/runc/fsys"
 	"gitee.com/shangc1016/runc/utils"
 	"github.com/sirupsen/logrus"
 )
@@ -69,6 +69,7 @@ func (c *CgroupResource) setQuota() error {
 func (c *CgroupResource) setPid() error {
 	for _, resource := range c.Resource {
 		tasks_path := path.Join(c.Path, resource.Type, c.Root, c.Name, "tasks")
+		fmt.Println("tasks_path", tasks_path, c.Pid)
 		if err := ioutil.WriteFile(tasks_path, []byte(c.Pid), 0644); err != nil {
 			logrus.Fatal(err)
 			return err
@@ -80,7 +81,7 @@ func (c *CgroupResource) setPid() error {
 func (c *CgroupResource) RemoveNode(name string) bool {
 	for _, resource := range c.Resource {
 		node_path := path.Join(c.Path, resource.Type, c.Root, name)
-		exist, err := fs.PathExists(node_path)
+		exist, err := fsys.PathExists(node_path)
 		if err != nil {
 			fmt.Println("<removeNode error>:", err)
 		}
@@ -90,5 +91,6 @@ func (c *CgroupResource) RemoveNode(name string) bool {
 			}
 		}
 	}
+	fmt.Println("node removed")
 	return true
 }

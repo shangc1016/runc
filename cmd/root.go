@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"gitee.com/shangc1016/runc/checker"
 	"gitee.com/shangc1016/runc/formater"
-	"gitee.com/shangc1016/runc/fs"
+	"gitee.com/shangc1016/runc/fsys"
 	"gitee.com/shangc1016/runc/mount"
 	"gitee.com/shangc1016/runc/ns"
 	"gitee.com/shangc1016/runc/status"
@@ -47,7 +48,7 @@ var runCmd *cobra.Command = &cobra.Command{
 	Short: "execute process",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		volumes, status := fs.ParseVolume(volume)
+		volumes, status := fsys.ParseVolume(volume)
 		if !status {
 			fmt.Println("volume format error(exit)")
 			os.Exit(-1)
@@ -65,6 +66,7 @@ var commitCmd *cobra.Command = &cobra.Command{
 	Use:   "commit",
 	Short: "commit container filesystem to achieved",
 	Run: func(cmd *cobra.Command, args []string) {
+
 		// TODO
 		fmt.Println("args:", args)
 		if len(args) == 0 {
@@ -78,6 +80,10 @@ var psCmd *cobra.Command = &cobra.Command{
 	Use:   "ps",
 	Short: "print state of all container",
 	Run: func(cmd *cobra.Command, args []string) {
+		checker.RollContainers(checker.PrintInfo)
+		fmt.Println("=======")
+		checker.RollContainers(checker.DeleteTerminated)
+		checker.RollContainers(checker.PrintInfo)
 		if all && quiet {
 			info, _ := status.GetAllQuietStatus("/var/lib/runc/status")
 			formater.PsQuiet(info)
@@ -101,13 +107,11 @@ var initCmd *cobra.Command = &cobra.Command{
 	Short: "re-enter program and do some setting work.",
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO:参数有效性验证
-		fmt.Println("enter##############")
 		ns.Config(args[0], args[1:])
 	},
 }
 
 func init() {
-	fmt.Println("init cmd...")
 	rootCmd.AddCommand(runCmd)
 	rootCmd.AddCommand(psCmd)
 	rootCmd.AddCommand(initCmd)

@@ -1,12 +1,5 @@
 package utils
 
-import (
-	"encoding/json"
-	"fmt"
-	"os"
-	"path"
-)
-
 type StorageConfig struct {
 	Path       string `json:"path"`
 	Status     string `json:"status"`
@@ -46,41 +39,33 @@ type GlobalConfig struct {
 
 // 项目所有配置
 var (
-	Global     GlobalConfig //全局配置
-	Storage    StorageConfig
-	Cgroup     CgroupConfig
-	RunChecker RunCheckerConfig
-	Project    ProjectConfig
+	Storage StorageConfig = StorageConfig{
+		Path:       "/var/lib/runc",
+		Status:     "status",
+		Images:     "images",
+		Containers: "containers",
+		Logs:       "logs",
+		Mnt:        "mnt",
+		UpperDir:   "upperdir",
+		WorkDir:    "workdir",
+		Output:     "output",
+	}
+
+	Cgroup CgroupConfig = CgroupConfig{
+		Path:        "/sys/fs/cgroup",
+		MemoryQuota: "memory.limit_in_bytes",
+		CpuQuota:    "cpu.cfs_quota_us",
+		Memory:      "memory",
+		Cpu:         "cpu",
+	}
+
+	RunChecker RunCheckerConfig = RunCheckerConfig{
+		Name:    "runchecker",
+		LogName: "runchecker.log",
+	}
+
+	Project ProjectConfig = ProjectConfig{
+		Name: "runc",
+		Self: "/proc/self/exe",
+	}
 )
-
-// 初始化全局参数，从config.json中读入参数
-func InitConfig() {
-	fmt.Println("init utils, loading params...")
-	wd, _ := os.Getwd()
-	config, err := ParseJsonConfig(path.Join(wd, "config.json"))
-	if err != nil {
-		fmt.Println("loading configuration error:", err)
-		os.Exit(-1)
-	}
-
-	Global = config
-	Storage = config.StorageConfig
-	Cgroup = config.CgroupConfig
-	RunChecker = config.RunCheckerConfig
-	Project = config.ProjectConfig
-}
-
-func ParseJsonConfig(jsonPath string) (GlobalConfig, error) {
-	jsonConfig, err := os.Open(jsonPath)
-	if err != nil {
-		return GlobalConfig{}, err
-	}
-	defer jsonConfig.Close()
-	var config GlobalConfig
-
-	err = json.NewDecoder(jsonConfig).Decode(&config)
-	if err != nil {
-		return GlobalConfig{}, err
-	}
-	return config, nil
-}
