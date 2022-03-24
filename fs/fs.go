@@ -11,7 +11,12 @@ import (
 func InitFs() {
 	fmt.Println("init fs(storage, cgroup)...")
 
-	status := InitializeStorageDir(utils.Storage.Path,
+	// 首先，创建目录/var/lib/runc
+	status := MkDirIfNotExist(utils.Storage.Path)
+	if !status {
+		fmt.Println("create", utils.Storage.Path, " error.")
+	}
+	status = InitializeStorageDir(utils.Storage.Path,
 		[]string{utils.Storage.Containers,
 			utils.Storage.Images, utils.Storage.Logs, utils.Storage.Status})
 	if !status {
@@ -71,7 +76,7 @@ func MkContainerDir(containerPath, name string, dirs []string) bool {
 func MkDirIfNotExist(dir string) bool {
 	status, err := PathExists(dir)
 	if err != nil {
-		fmt.Println("error")
+		return false
 	}
 	if status {
 		return true

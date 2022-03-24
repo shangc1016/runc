@@ -16,12 +16,13 @@ type VolumeInfo struct {
 }
 
 type Containerfs struct {
-	Name     string `json:"name"`
-	Path     string `json:"path"`
-	Mnt      string `json:"container"`
-	Upperdir string `json:"upperdir"`
-	Workdir  string `json:"workdir"`
-	Output   string `json:"output"`
+	Name     string       `json:"name"`      // eg:"qwertyuiop"
+	Path     string       `json:"path"`      // eg:"/var/lib/runc/containers"
+	Mnt      string       `json:"container"` // eg:"mnt"
+	Upperdir string       `json:"upperdir"`  // eg:"ipperdir"
+	Workdir  string       `json:"workdir"`   // eg:"workdir"
+	Output   string       `json:"output"`    // eg:"output"
+	Volumes  []VolumeInfo `json:"volume"`    // eg:"[{/outer/path:/inner/path}...]"
 }
 
 func NewContainerFS(name string) *Containerfs {
@@ -50,6 +51,12 @@ func (c *Containerfs) Init() {
 }
 
 func (c *Containerfs) MkMountFs(imagePath string) {
+	//  先判断imagePath镜像是否存在
+	exist, _ := PathExists(imagePath)
+	if !exist {
+		fmt.Println("error, imagePath not exist.")
+		os.Exit(-1)
+	}
 	// 把imagePath 挂载到当前容器目录的mnt下， 使用overlay文件系统挂载
 	cmd := exec.Command("mount", "-t", "overlay", "overlay",
 		"-o", "lowerdir="+imagePath,
@@ -62,21 +69,57 @@ func (c *Containerfs) MkMountFs(imagePath string) {
 	}
 }
 
-func (c *Containerfs) MkVolumeFs(volumes []VolumeInfo) bool {
+func (c *Containerfs) MkVolumeFs(volumes []VolumeInfo) {
+	c.Volumes = volumes
 	for _, volume := range volumes {
-		exist, _ := PathExists(path.Join(c.Mnt, volume.InnerPath))
+		fmt.Println("inner:", volume.InnerPath)
+		fmt.Println("outer:", volume.OuterPath)
+		inner := path.Join(c.Path, c.Name, c.Mnt, volume.InnerPath)
+		fmt.Println("inner:", inner)
+		exist, _ := PathExists(inner)
 		if !exist {
-			os.Mkdir(path.Join(c.Mnt, volume.InnerPath), 0644)
+			os.MkdirAll(inner, 0644)
 		}
 		exist, _ = PathExists(volume.OuterPath)
 		if !exist {
-			fmt.Println("outter path not exist")
-			return false
+			fmt.Println("挂载：外部路径不存在")
+			os.Exit(-1)
 		}
-		cmd := exec.Command("mount", "--bind", volume.OuterPath, path.Join(c.Mnt, volume.InnerPath))
+		cmd := exec.Command("mount", "--bind", volume.OuterPath, inner)
 		if err := cmd.Run(); err != nil {
+			fmt.Println("mount error", err)
+			os.Exit(-1)
+		}
+	}
+}
+
+func (c *Containerfs) CleanUp() {
+	c.cleanUpVolume()
+	c.cleanUpLayer()
+	err := os.RemoveAll(path.Join(c.Path, c.Name))
+	if err != nil {
+		fmt.Println("<remove container dir err>", err)
+	}
+	fmt.Println("cleanup fsys")
+}
+
+func (c *Containerfs) cleanUpVolume() bool {
+	// cleanup all volume mountpoint.
+	for _, volume := range c.Volumes {
+		cmd := exec.Command("umount", path.Join(c.Path, c.Name, c.Mnt, volume.InnerPath))
+		if err := cmd.Run(); err != nil {
+			fmt.Println("<remove volume mount error>", err)
 			return false
 		}
+	}
+	return true
+}
+
+func (c *Containerfs) cleanUpLayer() bool {
+	cmd := exec.Command("umount", "-l", path.Join(c.Path, c.Name, c.Mnt))
+	if err := cmd.Run(); err != nil {
+		fmt.Println("<remove layerfs mount>", err)
+		return false
 	}
 	return true
 }

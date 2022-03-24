@@ -38,9 +38,6 @@ type PsFlags struct {
 	Quiet bool
 }
 
-var runFlags RunFlags
-var psFlags PsFlags
-
 var rootCmd *cobra.Command = &cobra.Command{
 	Use: "runc",
 }
@@ -49,6 +46,7 @@ var runCmd *cobra.Command = &cobra.Command{
 	Use:   "run",
 	Short: "execute process",
 	Run: func(cmd *cobra.Command, args []string) {
+
 		volumes, status := fs.ParseVolume(volume)
 		if !status {
 			fmt.Println("volume format error(exit)")
@@ -108,7 +106,7 @@ var initCmd *cobra.Command = &cobra.Command{
 	},
 }
 
-func InitCmd() {
+func init() {
 	fmt.Println("init cmd...")
 	rootCmd.AddCommand(runCmd)
 	rootCmd.AddCommand(psCmd)

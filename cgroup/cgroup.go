@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 
+	"gitee.com/shangc1016/runc/fs"
 	"gitee.com/shangc1016/runc/utils"
 	"github.com/sirupsen/logrus"
 )
@@ -74,4 +75,20 @@ func (c *CgroupResource) setPid() error {
 		}
 	}
 	return nil
+}
+
+func (c *CgroupResource) RemoveNode(name string) bool {
+	for _, resource := range c.Resource {
+		node_path := path.Join(c.Path, resource.Type, c.Root, name)
+		exist, err := fs.PathExists(node_path)
+		if err != nil {
+			fmt.Println("<removeNode error>:", err)
+		}
+		if exist {
+			if err := os.RemoveAll(node_path); err != nil {
+				fmt.Println("<remove cgroup node err>", err)
+			}
+		}
+	}
+	return true
 }

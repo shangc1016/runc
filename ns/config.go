@@ -4,18 +4,15 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path"
 	"runtime"
 	"syscall"
 
-	"gitee.com/shangc1016/runc/utils"
 	"github.com/sirupsen/logrus"
 )
 
-func Config(id string, command []string) {
+func Config(root string, command []string) {
 	// 首先chroot到/var/lib/runc/mnt这个overlay的文件系统中
-	root := path.Join(utils.Storage.Path, utils.Storage.Containers, id, "mnt")
-	fmt.Println("root:", root)
+
 	if err := syscall.Chroot(root); err != nil {
 		fmt.Println("<chroot error>.", err.Error())
 		os.Exit(-1)
