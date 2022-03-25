@@ -17,7 +17,7 @@ import (
 // 更新状态基本只有一种，从running到terminated
 // 然后umount这个进程用到的所有...
 
-// 自定义的函数传入, 判断进程是否存在，不存在则改变info.Status 状态
+// 传入自定义的函数, 判断进程是否存在，不存在则改变info.Status 状态
 func checkExistChangeStatus(info status.ContainerInfo) {
 	exist, err := fsys.PathExists(path.Join("/proc", info.Pid))
 	if err != nil {

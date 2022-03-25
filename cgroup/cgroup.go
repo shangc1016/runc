@@ -58,6 +58,7 @@ func (c *CgroupResource) setQuota() error {
 			return err
 		}
 		quota_path := path.Join(c.Path, resource.Type, c.Root, c.Name, resource.File)
+		// FIXME:设置cpu限制的时候，写入文件报错？为啥
 		if err := ioutil.WriteFile(quota_path, []byte(resource.Quota), 0644); err != nil {
 			fmt.Println("set Quota error", err)
 			return err
@@ -78,9 +79,10 @@ func (c *CgroupResource) setPid() error {
 	return nil
 }
 
-func (c *CgroupResource) RemoveNode(name string) bool {
+func (c *CgroupResource) RemoveNode() bool {
 	for _, resource := range c.Resource {
-		node_path := path.Join(c.Path, resource.Type, c.Root, name)
+		node_path := path.Join(c.Path, resource.Type, c.Root, c.Name)
+		fmt.Println("node_path:", node_path)
 		exist, err := fsys.PathExists(node_path)
 		if err != nil {
 			fmt.Println("<removeNode error>:", err)

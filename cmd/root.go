@@ -76,14 +76,39 @@ var commitCmd *cobra.Command = &cobra.Command{
 	},
 }
 
+// 只有在rm命令可以删除后台进程的文件系统
+// it模式的进程在退出时删除文件系统
+var rmCmd *cobra.Command = &cobra.Command{
+	Use:   "rm",
+	Short: "remove stopped container file system",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) != 1 {
+			fmt.Println("args error")
+			os.Exit(-1)
+		}
+		checker.RollContainers(checker.RemoveById(args[0]))
+	},
+}
+
+// 杀死容器进程，设置状态为terminated
+var killCmd *cobra.Command = &cobra.Command{
+	Use:   "kill",
+	Short: "kill running container",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) != 1 {
+			fmt.Println("args error")
+			os.Exit(-1)
+		}
+		fmt.Println("stop:", args[0])
+		checker.RollContainers(checker.ChangeStatus(args[0], status.RUNNING, status.TERMINATED))
+	},
+}
+
 var psCmd *cobra.Command = &cobra.Command{
 	Use:   "ps",
 	Short: "print state of all container",
 	Run: func(cmd *cobra.Command, args []string) {
-		checker.RollContainers(checker.PrintInfo)
-		fmt.Println("=======")
-		checker.RollContainers(checker.DeleteTerminated)
-		checker.RollContainers(checker.PrintInfo)
+
 		if all && quiet {
 			info, _ := status.GetAllQuietStatus("/var/lib/runc/status")
 			formater.PsQuiet(info)
@@ -116,6 +141,8 @@ func init() {
 	rootCmd.AddCommand(psCmd)
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(commitCmd)
+	rootCmd.AddCommand(rmCmd)
+	rootCmd.AddCommand(killCmd)
 
 	runCmd.Flags().StringVarP(&memQuota, "mem", "m", "100m", "mem quota, range [...]")
 	runCmd.Flags().StringVarP(&cpuQuota, "cpu", "c", "-1", "cpu quota, range [-1, 100000]")
@@ -131,7 +158,7 @@ func init() {
 	psCmd.Flags().BoolVarP(&all, "all", "a", false, "print all container, no matter running or terminated.")
 	psCmd.Flags().BoolVarP(&quiet, "quiet", "q", false, "only print container's id.")
 
-	// initCmd.Hidden = true // only invoke internal.
+	initCmd.Hidden = true // only invoke internal.
 
 }
 

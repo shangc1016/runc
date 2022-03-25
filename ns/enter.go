@@ -65,7 +65,7 @@ func ReenterConfig(it bool, mem, cpu string, command []string, volumes []fsys.Vo
 	if it {
 		//  it模式: 等待子进程返回
 		self.Wait()
-		cgroupLimit.RemoveNode(id)
+		cgroupLimit.RemoveNode()
 		fsys.CleanUp()
 
 	} else {
