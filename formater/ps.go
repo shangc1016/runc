@@ -21,7 +21,7 @@ func PsQuiet(ids []string) {
 func PsAll(info []status.ContainerInfo) {
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"#", "id", "name", "command", "pid", "status", "volume:(outer, inner)"})
+	t.AppendHeader(table.Row{"#", "id", "name", "command", "pid", "status", "volume(outer : inner)"})
 	for k, item := range info {
 		t.AppendRow(table.Row{k, item.Id, item.Name, item.Command, item.Pid, item.Status, item.Volumes})
 		t.AppendSeparator()
