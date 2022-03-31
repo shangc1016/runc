@@ -2,14 +2,20 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"os/exec"
+	"path"
+	"strings"
 
 	"gitee.com/shangc1016/runc/checker"
 	"gitee.com/shangc1016/runc/formater"
 	"gitee.com/shangc1016/runc/fsys"
 	"gitee.com/shangc1016/runc/mount"
 	"gitee.com/shangc1016/runc/ns"
+	"gitee.com/shangc1016/runc/nsenter"
 	"gitee.com/shangc1016/runc/status"
+	"gitee.com/shangc1016/runc/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -119,10 +125,72 @@ var psCmd *cobra.Command = &cobra.Command{
 			info, _ := status.GetAllStatus("/var/lib/runc/status")
 			formater.PsAll(info)
 		} else {
+
 			// 没有任何选项，打印正在运行的所有信息
 			info, _ := status.GetStatus("/var/lib/runc/status")
 			formater.PsAll(info)
 		}
+	},
+}
+
+// 打印重定向的容器stdout & stderr
+var logCmd *cobra.Command = &cobra.Command{
+	Use:   "log",
+	Short: "redirect detach container process stdout & stderr to file, and cat file",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) != 1 {
+			fmt.Println("error input")
+			os.Exit(-1)
+		}
+		log_path := path.Join(utils.Storage.Path, utils.Storage.Containers, args[0], utils.Storage.Output, "output.log")
+		status, _ := fsys.PathExists(log_path)
+		if !status {
+			fmt.Println("error input")
+			os.Exit(-1)
+		}
+		log, err := os.Open(log_path)
+		if err != nil {
+			fmt.Println("open file error")
+			os.Exit(-1)
+		}
+		defer log.Close()
+		content, _ := ioutil.ReadAll(log)
+		fmt.Println(string(content))
+	},
+}
+
+// IMPORTANT: 由于CGO
+var execCmd *cobra.Command = &cobra.Command{
+	Use:   "exec",
+	Short: "exec to inter container's ns",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("enter")
+		// 第二次进入此函数
+		if os.Getenv(nsenter.ENV_EXEC_PID) != "" {
+			fmt.Println("pid callback pid ", os.Getpid())
+			exec_cmd := os.Getenv(nsenter.ENV_EXEC_CMD)
+			fmt.Println("exec_cmd:", exec_cmd)
+			cmdArr := strings.Split(exec_cmd, " ")
+			cmd := exec.Command(cmdArr[0])
+			cmd.Stdout = os.Stdout
+			cmd.Stdin = os.Stdin
+			cmd.Stderr = os.Stderr
+			if err := cmd.Run(); err != nil {
+				fmt.Println("flag error")
+			}
+			cmd.Wait()
+			return
+		}
+		// 第一次执行下面
+		// 希望的exec命令格式是：exec <ID> <command...>
+		if len(args) < 2 {
+			fmt.Println("error args")
+			return
+		}
+		Id := args[0]
+		var commandArr []string
+		commandArr = append(commandArr, args[1:]...)
+		nsenter.ExecContainer(Id, commandArr)
 	},
 }
 
@@ -143,6 +211,8 @@ func init() {
 	rootCmd.AddCommand(commitCmd)
 	rootCmd.AddCommand(rmCmd)
 	rootCmd.AddCommand(killCmd)
+	rootCmd.AddCommand(logCmd)
+	rootCmd.AddCommand(execCmd)
 
 	runCmd.Flags().StringVarP(&memQuota, "mem", "m", "100m", "mem quota, range [...]")
 	runCmd.Flags().StringVarP(&cpuQuota, "cpu", "c", "-1", "cpu quota, range [-1, 100000]")
