@@ -1,6 +1,8 @@
 package nsenter
 
 /*
+
+#define _GNU_SOURCE
 #include <errno.h>
 #include <fcntl.h>
 #include <sched.h>
@@ -8,6 +10,7 @@ package nsenter
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
 
 // constructor 在程序启动的时候运行
 __attribute__((constructor)) void enter_namespace(void) {
@@ -20,13 +23,18 @@ __attribute__((constructor)) void enter_namespace(void) {
   cmd = getenv("runc_cmd");
   // 没有runc_cmd环境变量，直接退出
   if (!cmd) return;
+
+  printf("%s\n", pid);
+  printf("%s\n", cmd);
+
   int i;
   char nspath[1024];
   char *namespace[] = {"ipc", "net", "pid", "uts", "mnt"};
   for (i = 0; i < 5; i++) {
     // 拼接路径
     sprintf(nspath, "/proc/%s/ns/%s", pid, namespace[i]);
-    int fd = open(nspath, O_RDONLY);
+	printf("nspath:%s\n", nspath);
+    int fd = open(nspath, O_RDONLY, 0644);
     if (setns(fd, 0) == -1) {
       fprintf(stderr, "setns on %s namespace failed, %s\n", namespace[i],
               strerror(errno));
@@ -100,5 +108,4 @@ func ExecContainer(id string, commandArr []string) {
 		fmt.Println("exec run error")
 		os.Exit(-1)
 	}
-
 }

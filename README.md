@@ -21,7 +21,7 @@
 >- https://docs.kernel.org/filesystems/overlayfs.html
 >- https://wiki.archlinux.org/title/Overlay_filesystem
 
-![](https://note-img-1300721153.cos.ap-nanjing.myqcloud.com//md-imgimage-20220318232449145.png )
+<img src="https://note-img-1300721153.cos.ap-nanjing.myqcloud.com//md-imgimage-20220318232449145.png" style="zoom:50%;" />
 
 > docker 用到的overlay文件系统示意
 
@@ -77,6 +77,8 @@
 #### 5.4、进入容器Namespace, `exec`
 
 利用setns系统调用，以及go、c之间的调用
+
+FIXME：在这儿遇到了问题，使用setns进不去容器的命名空间，
 
 #### 5.5、停止容器, `kill`
 
@@ -144,4 +146,10 @@
 ```
 /sys/fs/cgroup/xxx/runc    // xxx为不同的资源类型，cpu、memery、cpuset等
 ```
+
+
+
+
+
+
 

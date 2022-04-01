@@ -190,6 +190,7 @@ var execCmd *cobra.Command = &cobra.Command{
 		Id := args[0]
 		var commandArr []string
 		commandArr = append(commandArr, args[1:]...)
+		// 第一次进入函数，设置环境变量，然后再次进入程序
 		nsenter.ExecContainer(Id, commandArr)
 	},
 }
@@ -200,6 +201,7 @@ var initCmd *cobra.Command = &cobra.Command{
 	Short: "re-enter program and do some setting work.",
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO:参数有效性验证
+		fmt.Println("init:::", args)
 		ns.Config(args[0], args[1:])
 	},
 }
