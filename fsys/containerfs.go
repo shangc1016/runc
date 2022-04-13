@@ -157,11 +157,11 @@ func PivotRoot(root string) error {
 		return fmt.Errorf("pivot_root %v", err)
 	}
 	// 修改当前的工作目录到根目录
-	if err := syscall.Chdir(root); err != nil {
-		return fmt.Errorf("chdir %v %v", root, err)
+	if err := syscall.Chdir("/"); err != nil {
+		return fmt.Errorf("chdir / %v", err)
 	}
 
-	pivotDir = filepath.Join(root, ".pivot_root")
+	pivotDir = filepath.Join("/", ".pivot_root")
 	// umount rootfs/.pivot_root
 	if err := syscall.Unmount(pivotDir, syscall.MNT_DETACH); err != nil {
 		return fmt.Errorf("unmount pivot_root dir %v", err)
